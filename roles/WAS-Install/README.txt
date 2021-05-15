@@ -18,7 +18,7 @@ $ git clone https://github.com/jmutai/tomcat-ansible.git
 $ cd tomcat-ansible
 
 $ vim hosts
-[tomcat-nodes]
+[dmgr-node]
 192.168.10.10       # Remote user to act on
 
 
