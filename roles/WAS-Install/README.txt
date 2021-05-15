@@ -26,7 +26,7 @@ Update variables in playbook file - Set Tomcat version, remote user and Tomcat U
 
 $ vim was-app-install.yml
 - name: WAS deployment playbook
-  hosts: was-nodes       # Inventory hosts group / server to act on
+  hosts: dmgr-node       # Inventory hosts group / server to act on
   become: yes               # If to escalate privilege
   become_method: sudo       # Set become method
   remote_user: {{ was_user }} # Update username for remote server
