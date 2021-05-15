@@ -1,0 +1,69 @@
+- name: Stop Was application
+  shell: ./wsadmin.sh -lang jython -conntype SOAP -host {{ ansible_host }} -port "{{ port_no }}" -username "{{ username }}" -password "{{ password }}" -c 'AdminApplication.stopApplicationOnCluster("{{ appname }}", "{{ clustername }}")'
+  args: 
+    chdir: "{{ wascommand_path }}
+  register: stopoutput
+  failed_when: false
+- fail: msg="{{ stopoutput.stdout }} \n {{ stopoutput.stderr_lines }}"
+  when: ( stopoutput.rc != 0) or ( 'Exception' in stopoutput.stdout )
+
+- name: Export WAS application to take backup
+  shell: ./wsadmin.sh -lang jython -conntype SOAP -host {{ ansible_host }} -port "{{ port_no }}" -username "{{ username }}" -password "{{ password }}" -c 'AdminApplication.stopApp("{{ appname }}", "{{ backup_location }}")'
+  args: 
+    chdir: "{{ wascommand_path }}
+  register: exportoutput
+  failed_when: false
+- fail: msg="{{ exportoutput.stdout }} \n {{ exportoutput.stderr_lines }}"
+  when: ( exportoutput.rc != 0) or ( 'Exception' in exportoutput.stdout )
+
+- name: Check whether need to install application completely or just update
+  shell: ./wsadmin.sh -lang jython -conntype SOAP -host {{ ansible_host }} -port "{{ port_no }}" -username "{{ username }}" -password "{{ password }}" -c "AdminApp.list().splilines()"
+  args: 
+    chdir: "{{ wascommand_path }}
+  register: installorupdateoutput
+  failed_when: false
+- fail: msg="{{ installorupdateoutput.stdout }} \n {{ installorupdateoutput.stderr_lines }}"
+  when: ( installorupdateoutput.rc != 0) or ( 'Exception' in installorupdateoutput.stdout )
+
+- name: Install application
+  shell: ./wsadmin.sh -lang jython -conntype SOAP -host {{ ansible_host }} -port "{{ port_no }}" -username "{{ username }}" -password "{{ password }}" -c "AdminApp.install('{{ earfile_path}}/{{ ear_filename }}', '[ -cluster {{ clustername }} -contextroot {{ contextroot}} -appname {{ appname }} -usedefaultbindings]')"
+  args: 
+    chdir: "{{ wascommand_path }}
+  register: installoutput
+  failed_when: false
+  when: appname in installorupdateoutput 
+- fail: msg="{{ installoutput.stdout }} \n {{ installoutput.stderr_lines }}"
+  when: ( installoutput.rc != 0) or ( 'Exception' in installoutput.stdout )
+
+- name: Update application
+  shell: ./wsadmin.sh -lang jython -conntype SOAP -host {{ ansible_host }} -port "{{ port_no }}" -username "{{ username }}" -password "{{ password }}" -c "AdminApp.update('{{ appname }}', 'app', '[ -contents "{{ earfile_path }}/{{ ear_filename }}"-operation update -cluster {{ clustername }} -contextroot {{ contextroot}} -cell "{{ cellname }}"]')"
+  args: 
+    chdir: "{{ wascommand_path }}
+  register: updateoutput
+  failed_when: false
+  when: appname not in installorupdateoutput 
+- fail: msg="{{ updateoutput.stdout }} \n {{ updateoutput.stderr_lines }}"
+  when: ( updateoutput.rc != 0) or ( 'Exception' in updateoutput.stdout )
+
+- name: Wait for application to be equally distrubuted on nodes
+  shell: ./wsadmin.sh -lang jython -conntype SOAP -host {{ ansible_host }} -port "{{ port_no }}" -username "{{ username }}" -password "{{ password }}" -c 'AdminApp.isAppReady("{{ appname }}")'
+  args: 
+    chdir: "{{ wascommand_path }}
+  register: waitoutput
+  until: "'true' in waitoutput.stdout_lines[-1]"
+  retries: 7
+  delay: 30
+  failed_when: false
+- fail: msg="{{ waitoutput.stdout }} \n {{ waitoutput.stderr_lines }}"
+  when: ( waitoutput.rc != 0) or ( 'Exception' in waitoutput.stdout )
+  
+- name: start application
+  shell: ./wsadmin.sh -lang jython -conntype SOAP -host {{ ansible_host }} -port "{{ port_no }}" -username "{{ username }}" -password "{{ password }}" -c 'AdminApplication.startApplicationOnCluster("{{ appname }}", "{{ clustername }}")'
+  args: 
+    chdir: "{{ wascommand_path }}
+  register: startoutput
+  failed_when: false
+- fail: msg="{{ startoutput.stdout }} \n {{ startoutput.stderr_lines }}"
+  when: ( startoutput.rc != 0) or ( 'Exception' in startoutput.stdout )
+
+
