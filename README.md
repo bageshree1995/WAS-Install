@@ -6,6 +6,7 @@ Ansible Role to install application on IBM websphere application server.
 #Tasks in the role
 
 This role contains tasks to:
+
 Stop the application on WAS console.
 Backup the existing application.
 Check whether application needs to newly install or just need to update.
