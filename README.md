@@ -25,3 +25,24 @@ Ansible Role to install application on IBM websphere application server.
 	[dmgr_host]
 	192.168.10.20 ansible_host=192.168.10.10
 
+	• Update variables in playbook file - Set WAS cluster, cell, appname , contextroot variables
+	$ vim was-app-install.yml
+	- name: WAS deployment playbook
+	  hosts: was-nodes       # Inventory hosts group / server to act on
+	  become: yes               # If to escalate privilege
+	  become_method: sudo       # Set become method
+	  remote_user: {{ was_user }} # Update username for remote server
+	  vars:
+	    was_command_path: opt/IBM/webshere/bin/wsadmin.sh       # WAS commands script path(you will get it on DMGR after product installation )
+	    was_user: wasusr                                        # User with which product is installed
+	    console_user: wasadm                                    # User to login into WAS console
+	    console_pass: admin                                     # WAS console passwrd
+	    cellname: appcell                                  
+	    appname: app1
+	    clustername: appcluster
+	    backup_path: /tmp/backup/{{ appname }}   
+	    ear_filename: app1.ear
+	    earfile_path: 
+	  roles:
+	    - was-app-install
+
