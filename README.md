@@ -16,7 +16,6 @@ Ansible Role to install application on IBM websphere application server.
 ![image](https://user-images.githubusercontent.com/78317929/118358903-8e317c00-b59e-11eb-9f76-b8204269193f.png)
 
 # How to use this role
-
 	• Clone the Project:
 	$ git clone https://github.com/bageshree1995/WAS-Install.git
 	$ cd tomcat-ansible
