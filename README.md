@@ -19,3 +19,4 @@ Start the application on WAS console
 Clone the Project:
 $ git clone https://github.com/bageshree1995/WAS-Install.git
 $ cd tomcat-ansible
+
